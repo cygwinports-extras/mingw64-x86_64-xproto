@@ -1,0 +1,64 @@
+CROSS_HOST="x86_64-w64-mingw32"
+inherit xorg cross
+
+NAME="mingw64-x86_64-xproto"
+VERSION=7.7
+RELEASE=1
+CATEGORY="Devel"
+SUMMARY="X11 protocol headers for Win64 toolchain"
+DESCRIPTION="This package does NOT contain cygwin binaries.  Instead, it
+contains msvcrt-linked binaries (aka 'mingw').  It is for use with the
+mingw64-x86_64-gcc cross compiler, and installs into the
+/usr/x86_64-w64-mingw32/sys-root/mingw/{lib,include} directories."
+
+SRC_URI="
+	http://xorg.freedesktop.org/archive/individual/proto/bigreqsproto-1.1.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/compositeproto-0.4.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/damageproto-1.2.1.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/dmxproto-2.3.1.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/fixesproto-5.0.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/fontsproto-2.1.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/glproto-1.4.16.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/inputproto-2.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/kbproto-1.0.6.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/printproto-1.0.4.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/randrproto-1.4.0.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/recordproto-1.14.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/renderproto-0.11.1.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/resourceproto-1.2.0.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/scrnsaverproto-1.2.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/xcmiscproto-1.2.2.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/xextproto-7.2.1.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/xf86bigfontproto-1.2.0.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/xineramaproto-1.2.1.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/xproto-7.0.23.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/proto/xproxymanagementprotocol-1.0.3.tar.bz2
+	http://xorg.freedesktop.org/archive/individual/lib/xtrans-1.2.7.tar.bz2
+"
+SRC_DIR=.
+PATCH_URI="01-mingw64-BOOL.patch"
+
+src_compile() {
+	cd ${S}
+	for d in *-*.*
+	do
+		mkdir -p ${B}/$d
+		pushd ${B}/$d
+		cygconf --cache-file=../.config.cache --disable-docs --disable-specs
+		cygmake
+		popd
+	done
+}
+
+src_install() {
+	cd ${S}
+	for d in *-*.*
+	do
+		pushd ${B}/$d
+		cyginstall dist_doc_DATA=
+		newdoc ${S}/$d/COPYING ${d%-*}.COPYING
+#		newdoc ${S}/$d/README ${d%-*}.README
+		popd
+	done
+}
+
